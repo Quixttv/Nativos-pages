@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Nativos Guainía</title>
+  <meta name="description" content="Ecoturismo indígena en los Cerros de Mavicure, Guainía. 4 días · 3 noches con la comunidad Puinave.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --jungle-deep:  #192F22;
+      --jungle-mid:   #2A5040;
+      --jungle-light: #4A7C5F;
+      --earth-terra:  #B05A30;
+      --earth-ochre:  #C49838;
+      --night:        #0F1E2B;
+      --cream:        #F5EDE2;
+      --cream-dark:   #E8DDD0;
+      --cream-mid:    #EDE4D8;
+      --text-dark:    #1A1A18;
+      --text-body:    #4A4940;
+      --text-muted:   #7A7A6A;
+      --nav-h:        58px;
+      --header-h:     52px;
+      --font-d:       'Cormorant Garamond', Georgia, serif;
+      --font-b:       'DM Sans', system-ui, sans-serif;
+      --ease:         cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-b);
+      background: var(--cream);
+      color: var(--text-dark);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      /* space for fixed header and bottom nav */
+      padding-top: var(--header-h);
+      padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
+    }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.35s var(--ease) both; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ── REVEAL ── */
+    .rev {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+    }
+    .rev.on { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.07s; }
+    .d2 { transition-delay: 0.14s; }
+    .d3 { transition-delay: 0.21s; }
+    .d4 { transition-delay: 0.28s; }
+
+    /* ══════════════════════════════
+       STICKY HEADER
+    ══════════════════════════════ */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--header-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.125rem;
+      transition: background 0.4s var(--ease), backdrop-filter 0.4s;
+    }
+    .header.scrolled {
+      background: rgba(15, 30, 43, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .header-logo { height: 36px; width: auto; object-fit: contain; mix-blend-mode: screen; }
+    .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .header-wa {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      color: #fff; transition: background 0.3s;
+    }
+    .header-wa:hover { background: #1eb558; }
+    .hamburger {
+      display: flex; flex-direction: column; gap: 4px;
+      background: none; border: none; padding: 6px;
+    }
+    .hamburger span {
+      display: block; width: 20px; height: 1.5px;
+      background: rgba(255,255,255,0.8);
+      transition: transform 0.3s var(--ease), opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+    /* ── MOBILE NAV OVERLAY ── */
+    .nav-overlay {
+      display: none; position: fixed; inset: 0; z-index: 199;
+      background: var(--night);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 2.25rem;
+    }
+    .nav-overlay.open { display: flex; animation: fadeIn 0.3s var(--ease) both; }
+    .nav-overlay-close {
+      position: absolute; top: 1rem; right: 1.25rem;
+      background: none; border: none;
+      font-size: 1.75rem; color: rgba(255,255,255,0.4); line-height: 1;
+    }
+    .nav-overlay a {
+      font-family: var(--font-d); font-size: 3rem; font-weight: 600;
+      color: var(--cream); letter-spacing: 0.02em; transition: color 0.3s;
+    }
+    .nav-overlay a:hover { color: var(--earth-ochre); }
+
+    /* ══════════════════════════════
+       BOTTOM NAVIGATION
+    ══════════════════════════════ */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(15, 30, 43, 0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .bn-tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px;
+      height: var(--nav-h); background: none; border: none;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.5625rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bn-tab svg { transition: transform 0.3s var(--ease); }
+    .bn-tab.active { color: var(--earth-ochre); }
+    .bn-tab.active svg { transform: translateY(-1px); }
+    .bn-tab:active { opacity: 0.7; }
+
+    /* ══════════════════════════════
+       FLOATING WHATSAPP
+    ══════════════════════════════ */
+    .fab-wa {
+      position: fixed;
+      bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 1rem);
+      right: 1.125rem;
+      z-index: 198;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #25D366;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+      transition: background 0.3s, transform 0.2s;
+      animation: waPulse 3s 2s infinite;
+    }
+    .fab-wa:active { transform: scale(0.94); background: #1eb558; }
+    @keyframes waPulse {
+      0%, 100% { box-shadow: 0 4px 16px rgba(37,211,102,0.4); }
+      50%       { box-shadow: 0 4px 28px rgba(37,211,102,0.65); }
+    }
+
+    /* ══════════════════════════════
+       SECTION LABEL
+    ══════════════════════════════ */
+    .s-label {
+      font-size: 0.625rem; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--earth-ochre);
+      display: flex; align-items: center; gap: 0.625rem; margin-bottom: 1rem;
+    }
+    .s-label::before {
+      content: ''; display: inline-block; width: 18px; height: 1px;
+      background: var(--earth-ochre);
+    }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    .hero {
+      position: relative;
+      /* subtract header since body has padding-top */
+      min-height: calc(100dvh - var(--header-h));
+      overflow: hidden;
+      display: flex; align-items: flex-end;
+    }
+    .hero-bg { position: absolute; inset: 0; }
+    .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+    .hero-ov {
+      position: absolute; inset: 0;
+      background: linear-gradient(175deg,
+        rgba(15,30,43,0.25) 0%,
+        rgba(15,30,43,0.10) 30%,
+        rgba(15,30,43,0.70) 70%,
+        rgba(15,30,43,0.96) 100%);
+    }
+    .hero-body {
+      position: relative; z-index: 2;
+      padding: 0 1.375rem 2.5rem;
+      width: 100%;
+    }
+    .hero-logo-wrap {
+      display: flex; justify-content: center; margin-bottom: 2rem;
+      opacity: 0; animation: fadeUp 0.8s 0.3s var(--ease) forwards;
+    }
+    .hero-logo {
+      height: 76px; width: auto; object-fit: contain; mix-blend-mode: screen;
+    }
+    .hero-kicker {
+      font-size: 0.625rem; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--earth-ochre); margin-bottom: 0.875rem;
+      opacity: 0; animation: fadeUp 0.7s 0.45s var(--ease) forwards;
+    }
+    .hero-title {
+      font-family: var(--font-d); font-size: 2.1rem; font-weight: 600;
+      font-style: italic; color: var(--cream); line-height: 1.12;
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.8s 0.6s var(--ease) forwards;
+    }
+    .hero-pills {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem;
+      opacity: 0; animation: fadeUp 0.7s 0.75s var(--ease) forwards;
+    }
+    .hero-pill {
+      display: flex; align-items: center; gap: 0.375rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.18); padding: 0.4rem 0.75rem;
+    }
+    .hero-pill svg { color: var(--earth-ochre); }
+    .btn-cta {
+      display: flex; align-items: center; justify-content: center; gap: 0.625rem;
+      width: 100%; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--night); background: var(--earth-ochre);
+      padding: 1.05rem 1.5rem; border: none;
+      position: relative; overflow: hidden;
+      transition: color 0.35s;
+      opacity: 0; animation: fadeUp 0.7s 0.9s var(--ease) forwards;
+    }
+    .btn-cta::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--earth-terra);
+      transform: translateX(-101%); transition: transform 0.4s var(--ease);
+    }
+    .btn-cta:active::before { transform: translateX(0); }
+    .btn-cta:active { color: #fff; }
+    .btn-cta span, .btn-cta svg { position: relative; z-index: 1; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════
+       MARQUEE
+    ══════════════════════════════ */
+    .marquee { background: var(--earth-ochre); overflow: hidden; padding: 0.8rem 0; }
+    .marquee-track {
+      display: flex; white-space: nowrap;
+      animation: mRun 22s linear infinite;
+    }
+    .m-item {
+      font-size: 0.6rem; font-weight: 500; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--night);
+      padding: 0 2rem; display: flex; align-items: center; gap: 1.5rem;
+    }
+    .m-dot {
+      display: inline-block; width: 3px; height: 3px; border-radius: 50%;
+      background: var(--night); opacity: 0.35;
+    }
+    @keyframes mRun { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ══════════════════════════════
+       ABOUT
+    ══════════════════════════════ */
+    .about {}
+    .about-img {
+      width: 100%; aspect-ratio: 4/3; overflow: hidden; position: relative;
+    }
+    .about-img img { width: 100%; height: 100%; object-fit: cover; }
+    .about-img-cap {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.25rem;
+      background: linear-gradient(to top, rgba(15,30,43,0.65), transparent);
+      font-size: 0.625rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+    }
+    .about-text { padding: 2.5rem 1.375rem; background: var(--cream); }
+    .about-title {
+      font-family: var(--font-d); font-size: 2rem; font-weight: 600;
+      color: var(--text-dark); line-height: 1.18; margin-bottom: 1.25rem;
+    }
+    .about-title em { font-style: italic; color: var(--jungle-mid); }
+    .about-body {
+      font-size: 0.9375rem; line-height: 1.8; color: var(--text-body); margin-bottom: 1.25rem;
+    }
+    .about-quote {
+      font-family: var(--font-d); font-style: italic; font-size: 1.125rem;
+      color: var(--jungle-mid); line-height: 1.55;
+      border-left: 2px solid var(--earth-ochre); padding-left: 1.125rem;
+      margin: 1.75rem 0;
+    }
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem; padding-top: 2rem; margin-top: 2rem;
+      border-top: 1px solid var(--cream-dark);
+    }
+    .stat-num {
+      font-family: var(--font-d); font-size: 2rem; font-weight: 700;
+      color: var(--jungle-mid); line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.625rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-muted); margin-top: 0.25rem;
+    }
+
+    /* ══════════════════════════════
+       EXPERIENCE
+    ══════════════════════════════ */
+    .experience { background: var(--night); padding: 3rem 1.375rem; }
+    .exp-head { margin-bottom: 2rem; }
+    .exp-title {
+      font-family: var(--font-d); font-size: 2rem; font-weight: 600;
+      color: var(--cream); line-height: 1.15;
+    }
+    .exp-title em { font-style: italic; color: var(--earth-ochre); }
+    .exp-intro {
+      font-size: 0.9rem; line-height: 1.7; color: rgba(245,237,226,0.5);
+      margin-top: 0.875rem;
+    }
+    .exp-stack { display: flex; flex-direction: column; gap: 2px; }
+    .exp-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.055);
+      padding: 1.5rem; position: relative; overflow: hidden;
+    }
+    .exp-card.feat {
+      background: var(--jungle-deep);
+      border-color: rgba(74,124,95,0.3);
+    }
+    .exp-badge {
+      display: inline-block; font-size: 0.575rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      background: var(--earth-ochre); color: var(--night);
+      padding: 0.275rem 0.625rem; margin-bottom: 1rem;
+    }
+    .exp-ico { width: 36px; height: 36px; margin-bottom: 1rem; color: var(--earth-ochre); }
+    .exp-n {
+      position: absolute; top: 1rem; right: 1.25rem;
+      font-family: var(--font-d); font-size: 4rem; font-weight: 700;
+      color: rgba(255,255,255,0.04); line-height: 1; user-select: none;
+    }
+    .exp-ct {
+      font-family: var(--font-d); font-size: 1.175rem; font-weight: 600;
+      color: var(--cream); margin-bottom: 0.5rem; line-height: 1.3;
+    }
+    .exp-card.feat .exp-ct { font-size: 1.625rem; margin-bottom: 0.875rem; }
+    .exp-cb {
+      font-size: 0.875rem; line-height: 1.65; color: rgba(245,237,226,0.5);
+    }
+    .exp-card.feat .exp-cb { color: rgba(245,237,226,0.62); }
+
+    /* ══════════════════════════════
+       GALLERY (horizontal swipe)
+    ══════════════════════════════ */
+    .gallery { background: var(--cream-dark); padding: 3rem 0; }
+    .gallery-head { padding: 0 1.375rem; margin-bottom: 1.5rem; }
+    .gallery-title {
+      font-family: var(--font-d); font-size: 2rem; font-weight: 600;
+      color: var(--text-dark); line-height: 1.15;
+    }
+    .gallery-reel {
+      display: flex; overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 10px; padding: 0 1.375rem 0.75rem;
+    }
+    .gallery-reel::-webkit-scrollbar { display: none; }
+    .gallery-slide {
+      flex: 0 0 80vw; scroll-snap-align: start;
+      aspect-ratio: 4/3; position: relative; overflow: hidden;
+    }
+    .gallery-slide:last-child { margin-right: 1.375rem; }
+    .gallery-slide img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-slide-ov {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(15,30,43,0.55), transparent 50%);
+    }
+    .gallery-slide-cap {
+      position: absolute; bottom: 1rem; left: 1rem;
+      font-size: 0.625rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+    }
+    .gallery-dots {
+      display: flex; justify-content: center; gap: 6px; padding-top: 1rem;
+    }
+    .g-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(0,0,0,0.2); transition: background 0.3s, transform 0.3s;
+    }
+    .g-dot.active { background: var(--earth-ochre); transform: scale(1.3); }
+
+    /* ══════════════════════════════
+       LEAVE NO TRACE (accordion)
+    ══════════════════════════════ */
+    .lnt { background: var(--jungle-deep); padding: 3rem 1.375rem; }
+    .lnt-head { margin-bottom: 2rem; }
+    .lnt-title {
+      font-family: var(--font-d); font-size: 2rem; font-weight: 600;
+      color: var(--cream); line-height: 1.18; margin-bottom: 0.875rem;
+    }
+    .lnt-title em { font-style: italic; color: var(--earth-ochre); }
+    .lnt-intro { font-size: 0.9rem; line-height: 1.7; color: rgba(245,237,226,0.5); }
+    .lnt-badge {
+      display: inline-block; margin-top: 1.25rem;
+      font-size: 0.575rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+      background: rgba(196,152,56,0.12); color: var(--earth-ochre);
+      border: 1px solid rgba(196,152,56,0.3); padding: 0.35rem 0.75rem;
+    }
+    .lnt-acc {}
+    .lnt-ai { border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .lnt-ai:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+    .lnt-trigger {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; padding: 1.25rem 0;
+      background: none; border: none; text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lnt-trigger-left { display: flex; align-items: center; gap: 1rem; }
+    .lnt-num-b {
+      font-family: var(--font-d); font-size: 0.875rem; font-weight: 700;
+      color: var(--earth-ochre); min-width: 24px;
+    }
+    .lnt-trigger-title {
+      font-family: var(--font-d); font-size: 1.0625rem; font-weight: 600;
+      color: var(--cream); line-height: 1.3;
+    }
+    .lnt-chevron {
+      color: rgba(245,237,226,0.3); flex-shrink: 0;
+      transition: transform 0.35s var(--ease);
+    }
+    .lnt-ai.open .lnt-chevron { transform: rotate(180deg); }
+    .lnt-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s var(--ease), padding 0.3s;
+    }
+    .lnt-ai.open .lnt-body { max-height: 180px; }
+    .lnt-body-inner {
+      font-size: 0.875rem; line-height: 1.7; color: rgba(245,237,226,0.5);
+      padding-bottom: 1.25rem;
+    }
+
+    /* ══════════════════════════════
+       INCLUDED / NO INCLUIDO (tabs)
+    ══════════════════════════════ */
+    .included { background: var(--cream); padding: 3rem 1.375rem; }
+    .incl-head { margin-bottom: 1.75rem; }
+    .incl-title {
+      font-family: var(--font-d); font-size: 2rem; font-weight: 600;
+      color: var(--text-dark); line-height: 1.15;
+    }
+    .incl-tabs {
+      display: flex; background: var(--cream-dark);
+      padding: 3px; gap: 3px; margin-bottom: 2rem;
+    }
+    .i-tab {
+      flex: 1; padding: 0.75rem; font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+      background: none; border: none;
+      transition: background 0.3s, color 0.3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .i-tab.active { background: var(--cream); color: var(--text-dark); }
+    .incl-panel { display: none; }
+    .incl-panel.active { display: block; animation: fadeIn 0.3s var(--ease); }
+    .incl-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .incl-list li {
+      display: grid; grid-template-columns: 20px 1fr;
+      gap: 0.875rem; align-items: start;
+      font-size: 0.9375rem; color: var(--text-body); line-height: 1.5;
+    }
+    .incl-list li svg { margin-top: 2px; flex-shrink: 0; }
+
+    /* ══════════════════════════════
+       PACKING LIST (accordion)
+    ══════════════════════════════ */
+    .packing { background: var(--cream-mid); padding: 3rem 1.375rem; }
+    .pack-head { margin-bottom: 2rem; }
+    .pack-title {
+      font-family: var(--font-d); font-size: 2rem; font-weight: 600;
+      color: var(--text-dark); line-height: 1.18; margin-bottom: 0.875rem;
+    }
+    .pack-title em { font-style: italic; color: var(--jungle-mid); }
+    .pack-intro { font-size: 0.9rem; line-height: 1.7; color: var(--text-body); }
+    .pack-acc {}
+    .pack-ai { border-bottom: 1px solid rgba(0,0,0,0.07); }
+    .pack-ai:first-child { border-top: 1px solid rgba(0,0,0,0.07); }
+    .pack-trigger {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 1.125rem 0; background: none; border: none; text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pack-trigger-title {
+      font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--earth-terra);
+    }
+    .pack-chevron {
+      color: var(--text-muted); flex-shrink: 0;
+      transition: transform 0.35s var(--ease);
+    }
+    .pack-ai.open .pack-chevron { transform: rotate(180deg); }
+    .pack-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s var(--ease);
+    }
+    .pack-ai.open .pack-body { max-height: 300px; }
+    .pack-items {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.625rem 1rem; padding-bottom: 1.25rem;
+    }
+    .pack-item {
+      font-size: 0.875rem; color: var(--text-body);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .p-dot {
+      display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+      background: var(--earth-ochre); flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════
+       ITINERARY PAGE
+    ══════════════════════════════ */
+    .itin-hero {
+      min-height: 38dvh; position: relative; overflow: hidden;
+      display: flex; align-items: flex-end;
+    }
+    .itin-bg { position: absolute; inset: 0; }
+    .itin-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+    .itin-bg-ov {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(15,30,43,0.35), rgba(15,30,43,0.88));
+    }
+    .itin-hero-body { position: relative; z-index: 2; padding: 2.5rem 1.375rem; width: 100%; }
+    .itin-hero-kicker {
+      font-size: 0.625rem; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--earth-ochre); margin-bottom: 0.75rem;
+    }
+    .itin-hero-title {
+      font-family: var(--font-d); font-size: 2.75rem; font-weight: 600;
+      font-style: italic; color: var(--cream); line-height: 1.06;
+    }
+    .itin-hero-sub {
+      font-size: 0.75rem; color: rgba(245,237,226,0.5);
+      margin-top: 0.625rem; letter-spacing: 0.04em;
+    }
+    .itin-body { background: var(--cream); padding: 0 1.375rem 2rem; }
+    .day-block {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+    .day-block:last-child { border-bottom: none; }
+    .day-meta {
+      display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.25rem;
+    }
+    .day-big {
+      font-family: var(--font-d); font-size: 4.5rem; font-weight: 700;
+      color: var(--cream-dark); line-height: 1; letter-spacing: -0.04em;
+      user-select: none;
+    }
+    .day-info {}
+    .day-kicker {
+      font-size: 0.575rem; font-weight: 500; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--earth-ochre); margin-bottom: 0.3rem;
+    }
+    .day-title {
+      font-family: var(--font-d); font-size: 1.625rem; font-weight: 600;
+      color: var(--text-dark); line-height: 1.2;
+    }
+    .day-acts { display: flex; flex-direction: column; gap: 0.875rem; }
+    .day-act {
+      padding: 1.125rem; background: var(--cream-dark);
+      border-left: 2.5px solid var(--jungle-light);
+    }
+    .day-act-time {
+      font-size: 0.625rem; font-weight: 500; color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .day-act-title {
+      font-family: var(--font-d); font-size: 1rem; font-weight: 600;
+      color: var(--text-dark); margin-bottom: 0.25rem;
+    }
+    .day-act-desc { font-size: 0.8438rem; line-height: 1.65; color: var(--text-body); }
+    .day-note {
+      margin-top: 1rem; padding: 1.125rem;
+      background: var(--jungle-deep);
+      display: flex; gap: 0.875rem; align-items: flex-start;
+    }
+    .day-note svg { flex-shrink: 0; color: var(--earth-ochre); margin-top: 1px; }
+    .day-note-text {
+      font-size: 0.8438rem; line-height: 1.65; color: rgba(245,237,226,0.65);
+    }
+    .day-note-text strong { color: var(--cream); font-weight: 500; }
+    .itin-cta { padding: 2.5rem 1.375rem; text-align: center; }
+    .itin-cta-text {
+      font-family: var(--font-d); font-style: italic; font-size: 1.25rem;
+      color: var(--text-muted); margin-bottom: 1.5rem;
+    }
+
+    /* ══════════════════════════════
+       RESERVAS PAGE
+    ══════════════════════════════ */
+    .res-hero {
+      background: var(--night);
+      padding: 2.5rem 1.375rem 3rem;
+      min-height: 35dvh;
+      display: flex; align-items: flex-end;
+    }
+    .res-hero-kicker {
+      font-size: 0.625rem; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--earth-ochre); margin-bottom: 0.75rem;
+    }
+    .res-hero-title {
+      font-family: var(--font-d); font-size: 2.75rem; font-weight: 600;
+      font-style: italic; color: var(--cream); line-height: 1.06;
+    }
+    .res-body { padding: 2.5rem 1.375rem; }
+    .price-card {
+      background: var(--jungle-deep); padding: 1.75rem; margin-bottom: 2rem;
+    }
+    .price-label {
+      font-size: 0.6rem; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--earth-ochre); margin-bottom: 0.5rem;
+    }
+    .price-main {
+      font-family: var(--font-d); font-size: 2.5rem; font-weight: 700;
+      color: var(--cream); line-height: 1;
+    }
+    .price-curr { font-size: 0.9rem; font-weight: 400; vertical-align: super; }
+    .price-sub {
+      font-size: 0.75rem; color: rgba(245,237,226,0.4); margin-top: 0.25rem;
+    }
+    .price-rows {
+      margin-top: 1.5rem; padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; gap: 0.625rem;
+    }
+    .p-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.875rem; color: rgba(245,237,226,0.55);
+    }
+    .p-row strong { color: var(--cream); font-weight: 500; }
+    .contact-head {
+      font-family: var(--font-d); font-size: 1.25rem; font-weight: 600;
+      color: var(--text-dark); margin-bottom: 1.125rem;
+    }
+    .btn-wa-full {
+      display: flex; align-items: center; justify-content: center; gap: 0.875rem;
+      width: 100%; background: #25D366; color: #fff;
+      padding: 1.125rem; font-size: 0.9rem; font-weight: 500;
+      margin-bottom: 0.75rem; border: none; transition: background 0.3s;
+    }
+    .btn-wa-full:active { background: #1eb558; }
+    .btn-tel {
+      display: flex; align-items: center; justify-content: center; gap: 0.875rem;
+      width: 100%; border: 1px solid var(--cream-dark); color: var(--text-body);
+      padding: 0.9rem; font-size: 0.875rem; background: none;
+      margin-bottom: 2rem; transition: background 0.3s;
+    }
+    .btn-tel:active { background: var(--cream-dark); }
+    .res-note {
+      font-size: 0.8125rem; line-height: 1.65; color: var(--text-muted);
+      padding: 1.125rem; background: var(--cream-dark);
+      border-left: 2px solid var(--earth-ochre); margin-bottom: 2.5rem;
+    }
+    .form-head {
+      font-family: var(--font-d); font-size: 1.75rem; font-weight: 600;
+      color: var(--text-dark); margin-bottom: 0.375rem;
+    }
+    .form-sub {
+      font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.6;
+    }
+    .res-form { display: flex; flex-direction: column; gap: 1.25rem; }
+    .fg { display: flex; flex-direction: column; gap: 0.4rem; }
+    .fg label {
+      font-size: 0.8125rem; font-weight: 500; color: var(--text-body); letter-spacing: 0.02em;
+    }
+    .fg input, .fg select, .fg textarea {
+      font-family: var(--font-b); font-size: 1rem;
+      color: var(--text-dark); background: var(--cream-dark);
+      border: 1px solid transparent; padding: 0.875rem 1rem;
+      outline: none; appearance: none; -webkit-appearance: none;
+      border-radius: 0; width: 100%;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus {
+      border-color: var(--jungle-mid); background: #fff;
+    }
+    .fg textarea { resize: vertical; min-height: 100px; }
+    .fg-err {
+      font-size: 0.75rem; color: var(--earth-terra); display: none; margin-top: 0.1rem;
+    }
+    .fg.err input, .fg.err textarea, .fg.err select { border-color: var(--earth-terra); }
+    .fg.err .fg-err { display: block; }
+    .btn-send {
+      display: flex; align-items: center; justify-content: center; gap: 0.875rem;
+      width: 100%; background: #25D366; color: #fff; border: none;
+      padding: 1.125rem; font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      transition: background 0.3s;
+    }
+    .btn-send:active { background: #1eb558; }
+    .form-note {
+      font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; text-align: center;
+    }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    .footer {
+      background: var(--night); padding: 2.5rem 1.375rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-logo {
+      height: 42px; width: auto; mix-blend-mode: screen; opacity: 0.85;
+      margin-bottom: 1rem;
+    }
+    .footer-tagline {
+      font-family: var(--font-d); font-style: italic; font-size: 0.9375rem;
+      color: rgba(245,237,226,0.4); line-height: 1.5; margin-bottom: 1.75rem;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: 0.875rem; margin-bottom: 2rem; }
+    .f-link {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-size: 0.9rem; color: rgba(245,237,226,0.5);
+    }
+    .f-link svg { flex-shrink: 0; }
+    .footer-copy {
+      font-size: 0.625rem; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.18); line-height: 1.7;
+    }
+
+    /* ── Section separators ── */
+    .sep { height: 1px; background: var(--cream-dark); }
+    .sep-dark { height: 1px; background: rgba(255,255,255,0.06); }
+  </style>
+</head>
+<body>
+
+<!-- ══ STICKY HEADER ══ -->
+<header class="header" id="header">
+  <a href="#" onclick="goPage('home'); return false;" aria-label="Inicio">
+    <img src="Logo.png" alt="Nativos Guainía" class="header-logo">
+  </a>
+  <div class="header-actions">
+    <a href="https://wa.me/573143499532" class="header-wa" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.522 3.66 1.435 5.18L2 22l4.913-1.41A9.94 9.94 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm.01 1.8a8.19 8.19 0 11-.02 16.38 8.19 8.19 0 01.02-16.38zm-2.47 3.78c-.21 0-.43.02-.64.03-.22.01-.59.08-.9.44-.32.37-1.21 1.18-1.21 2.88s1.24 3.35 1.42 3.58c.17.23 2.38 3.84 5.88 5.22 2.92 1.15 3.51.92 4.14.86.63-.06 2.04-.83 2.33-1.64.28-.8.28-1.49.2-1.64-.08-.14-.3-.22-.63-.39-.33-.17-1.95-.96-2.25-1.07-.3-.11-.52-.17-.74.17-.22.33-.85 1.07-1.04 1.29-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.62-.97-.87-1.63-1.94-1.82-2.27-.19-.33-.02-.51.14-.67.14-.14.33-.38.49-.57.17-.19.22-.33.33-.55.11-.22.06-.41-.03-.57-.08-.17-.71-1.76-.98-2.4-.26-.63-.52-.53-.72-.54l-.64-.01z"/>
+      </svg>
+    </a>
+    <button class="hamburger" id="hamburger" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ══ NAV OVERLAY ══ -->
+<div class="nav-overlay" id="navOverlay" role="dialog" aria-modal="true">
+  <button class="nav-overlay-close" id="navClose" aria-label="Cerrar">&times;</button>
+  <a href="#" onclick="goPage('home');      closeNav(); return false;">Inicio</a>
+  <a href="#" onclick="goPage('itinerary'); closeNav(); return false;">Itinerario</a>
+  <a href="#" onclick="goPage('reservas');  closeNav(); return false;">Reservas</a>
+  <a href="#" onclick="goPage('reservas');  closeNav(); return false;" style="color:var(--earth-ochre);font-size:2.25rem;">Reservar</a>
+</div>
+
+<!-- ══ FLOATING WHATSAPP ══ -->
+<a href="https://wa.me/573143499532?text=Hola%2C%20quiero%20reservar%20la%20experiencia%20en%20los%20Cerros%20de%20Mavicure%20con%20Nativos%20Guain%C3%ADa."
+   class="fab-wa" target="_blank" rel="noopener noreferrer" aria-label="Reservar por WhatsApp">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.522 3.66 1.435 5.18L2 22l4.913-1.41A9.94 9.94 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm.01 1.8a8.19 8.19 0 11-.02 16.38 8.19 8.19 0 01.02-16.38zm-2.47 3.78c-.21 0-.43.02-.64.03-.22.01-.59.08-.9.44-.32.37-1.21 1.18-1.21 2.88s1.24 3.35 1.42 3.58c.17.23 2.38 3.84 5.88 5.22 2.92 1.15 3.51.92 4.14.86.63-.06 2.04-.83 2.33-1.64.28-.8.28-1.49.2-1.64-.08-.14-.3-.22-.63-.39-.33-.17-1.95-.96-2.25-1.07-.3-.11-.52-.17-.74.17-.22.33-.85 1.07-1.04 1.29-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.62-.97-.87-1.63-1.94-1.82-2.27-.19-.33-.02-.51.14-.67.14-.14.33-.38.49-.57.17-.19.22-.33.33-.55.11-.22.06-.41-.03-.57-.08-.17-.71-1.76-.98-2.4-.26-.63-.52-.53-.72-.54l-.64-.01z"/>
+  </svg>
+</a>
+
+
+<!-- ════════════════════════════════════
+     PAGE: HOME
+════════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <img src="cerros-de-mavicure-el-paisaje-mas-bello-de-colombia-44-800x600.webp"
+           alt="Cerros de Mavicure al amanecer, Guainía, Colombia" fetchpriority="high">
+    </div>
+    <div class="hero-ov"></div>
+    <div class="hero-body">
+      <div class="hero-logo-wrap">
+        <img src="Logo.png" alt="Nativos Guainía" class="hero-logo">
+      </div>
+      <p class="hero-kicker">Ecoturismo Indígena · Guainía, Colombia</p>
+      <h1 class="hero-title">¡Allá donde la selva habla, el río guía y el alma escucha!</h1>
+      <div class="hero-pills">
+        <div class="hero-pill">
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <rect x="2" y="3" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M14 1.5v3M6 1.5v3M2 8h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          4 Días · 3 Noches
+        </div>
+        <div class="hero-pill">
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M10 2a6 6 0 016 6c0 4-6 10-6 10S4 12 4 8a6 6 0 016-6z" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="10" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          Cerros de Mavicure
+        </div>
+        <div class="hero-pill">
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="7" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M1 18c0-3.314 2.686-6 6-6M13 12a4 4 0 014 4v2M13 8a3 3 0 110-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Comunidad Puinave
+        </div>
+      </div>
+      <button class="btn-cta" onclick="goPage('itinerary')">
+        <span>Ver la experiencia</span>
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="m-item">Ecoturismo Responsable <span class="m-dot"></span></span>
+      <span class="m-item">Comunidad Puinave <span class="m-dot"></span></span>
+      <span class="m-item">Cerros de Mavicure <span class="m-dot"></span></span>
+      <span class="m-item">Delfines Rosados <span class="m-dot"></span></span>
+      <span class="m-item">Río Inírida <span class="m-dot"></span></span>
+      <span class="m-item">Leave No Trace <span class="m-dot"></span></span>
+      <span class="m-item">Guainía, Colombia <span class="m-dot"></span></span>
+      <span class="m-item">4 Días · 3 Noches <span class="m-dot"></span></span>
+      <span class="m-item">Ecoturismo Responsable <span class="m-dot"></span></span>
+      <span class="m-item">Comunidad Puinave <span class="m-dot"></span></span>
+      <span class="m-item">Cerros de Mavicure <span class="m-dot"></span></span>
+      <span class="m-item">Delfines Rosados <span class="m-dot"></span></span>
+      <span class="m-item">Río Inírida <span class="m-dot"></span></span>
+      <span class="m-item">Leave No Trace <span class="m-dot"></span></span>
+      <span class="m-item">Guainía, Colombia <span class="m-dot"></span></span>
+      <span class="m-item">4 Días · 3 Noches <span class="m-dot"></span></span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about">
+    <div class="about-img rev">
+      <img src="Imagen web2.png"
+           alt="Comunidad indígena Puinave junto al río Inírida" loading="lazy">
+      <div class="about-img-cap">Comunidad Puinave · Río Inírida, Guainía</div>
+    </div>
+    <div class="about-text">
+      <p class="s-label rev">Quiénes Somos</p>
+      <h2 class="about-title rev d1">
+        Guardianes de la selva, <em>anfitriones del mundo</em>
+      </h2>
+      <p class="about-body rev d2">
+        Nativos Guainía es una iniciativa de turismo comunitario liderada por la comunidad indígena <strong>Puinave</strong> en los márgenes del río Inírida. Somos territorio, historia y raíces.
+      </p>
+      <p class="about-body rev d3">
+        Cada visita es guiada por miembros de la comunidad que conocen cada piedra de los Cerros de Mavicure y cada corriente del río. El turismo aquí no es industria — es diálogo entre culturas.
+      </p>
+      <blockquote class="about-quote rev d4">
+        "La selva no es solo paisaje. Es nuestra memoria viva, nuestra farmacia, nuestra catedral."
+      </blockquote>
+      <div class="about-stats rev">
+        <div>
+          <div class="stat-num">+15</div>
+          <div class="stat-label">Años de experiencia</div>
+        </div>
+        <div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Comunidad indígena</div>
+        </div>
+        <div>
+          <div class="stat-num">3</div>
+          <div class="stat-label">Generaciones</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section class="experience">
+    <div class="exp-head">
+      <p class="s-label rev" style="color:rgba(196,152,56,0.85)">La Experiencia</p>
+      <h2 class="exp-title rev d1">Cuatro días que <em>cambian la mirada</em></h2>
+      <p class="exp-intro rev d2">Ríos de aguas negras, tepuyes que tocan el cielo, delfines rosados y la generosidad de un pueblo ancestral.</p>
+    </div>
+    <div class="exp-stack">
+      <div class="exp-card feat rev">
+        <div class="exp-badge">Paquete completo</div>
+        <h3 class="exp-ct">4 Días · 3 Noches en el corazón de la Amazonia</h3>
+        <p class="exp-cb">Alojamiento en la comunidad, alimentación tradicional, transporte fluvial y guía Puinave permanente.</p>
+        <div class="exp-n">1</div>
+      </div>
+      <div class="exp-card rev d1">
+        <svg class="exp-ico" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M20 8c-2 6-6 8-6 13a6 6 0 0012 0c0-5-4-7-6-13z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M10 30s2-4 5-4M30 30s-2-4-5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="exp-n">2</div>
+        <h3 class="exp-ct">Cultura Puinave Ancestral</h3>
+        <p class="exp-cb">Artesanía, medicina tradicional y rituales que han sobrevivido siglos de historia.</p>
+      </div>
+      <div class="exp-card rev d2">
+        <svg class="exp-ico" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M4 22s4-5 6-5 6 5 6 5 4-5 6-5 4 5 6 5M4 28s4-4 6-4 6 4 6 4 4-4 6-4 4 4 6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="exp-n">3</div>
+        <h3 class="exp-ct">Ríos y Selva Amazónica</h3>
+        <p class="exp-cb">Kayak entre lianas, caños tranquilos y el pulso de la selva al amanecer.</p>
+      </div>
+      <div class="exp-card rev d3">
+        <svg class="exp-ico" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M20 10c-6 0-12 4-12 12 0 4 2 7 5 9M20 10c6 0 12 4 12 12 0 4-2 7-5 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="20" cy="22" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M20 25v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="exp-n">4</div>
+        <h3 class="exp-ct">Delfines Rosados del Orinoco</h3>
+        <p class="exp-cb">El legendario tonina en su hábitat natural — un encuentro que pocas personas en el mundo pueden vivir.</p>
+      </div>
+      <div class="exp-card rev d4">
+        <svg class="exp-ico" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M20 34V16M14 22l6-6 6 6M8 34h24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="20" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <div class="exp-n">5</div>
+        <h3 class="exp-ct">Fogata y Cuentos Ancestrales</h3>
+        <p class="exp-cb">La noche en la selva bajo la Vía Láctea, con los mayores transmitiendo siglos de sabiduría.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery">
+    <div class="gallery-head">
+      <p class="s-label rev">Imágenes del Territorio</p>
+      <h2 class="gallery-title rev d1">Un paisaje que no se describe, se vive</h2>
+    </div>
+    <div class="gallery-reel" id="galleryReel">
+      <div class="gallery-slide">
+        <img src="Imagen web2.png" alt="Selva y río Inírida, Guainía" loading="lazy">
+        <div class="gallery-slide-ov"></div>
+        <span class="gallery-slide-cap">Río Inírida · Guainía</span>
+      </div>
+      <div class="gallery-slide">
+        <img src="imagen web 1.jpeg" alt="Guías indígenas Puinave en la selva" loading="lazy">
+        <div class="gallery-slide-ov"></div>
+        <span class="gallery-slide-cap">Guías Puinave</span>
+      </div>
+      <div class="gallery-slide">
+        <img src="Web 3.png" alt="Atardecer sobre el río Inírida y los Cerros de Mavicure" loading="lazy">
+        <div class="gallery-slide-ov"></div>
+        <span class="gallery-slide-cap">Atardecer · Mavicure</span>
+      </div>
+    </div>
+    <div class="gallery-dots" id="galleryDots" aria-hidden="true">
+      <span class="g-dot active"></span>
+      <span class="g-dot"></span>
+      <span class="g-dot"></span>
+    </div>
+  </section>
+
+  <!-- LEAVE NO TRACE -->
+  <section class="lnt">
+    <div class="lnt-head">
+      <p class="s-label rev" style="color:rgba(196,152,56,0.85)">Nuestra Responsabilidad</p>
+      <h2 class="lnt-title rev d1">Turismo que <em>sana</em>, no que hiere</h2>
+      <p class="lnt-intro rev d2">Adoptamos los 7 principios de Leave No Trace. Venir aquí implica un compromiso: cuidar lo que visitamos.</p>
+      <div class="lnt-badge rev d3">Leave No Trace · 7 Principios</div>
+    </div>
+    <div class="lnt-acc" id="lntAcc">
+      <div class="lnt-ai">
+        <button class="lnt-trigger" aria-expanded="false">
+          <div class="lnt-trigger-left">
+            <span class="lnt-num-b">01</span>
+            <span class="lnt-trigger-title">Planifica con anticipación</span>
+          </div>
+          <svg class="lnt-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lnt-body"><p class="lnt-body-inner">Conocer el territorio antes de llegar reduce el impacto y maximiza la experiencia. Compartimos lo necesario con cada visitante antes de partir.</p></div>
+      </div>
+      <div class="lnt-ai">
+        <button class="lnt-trigger" aria-expanded="false">
+          <div class="lnt-trigger-left">
+            <span class="lnt-num-b">02</span>
+            <span class="lnt-trigger-title">Viaja por superficies resistentes</span>
+          </div>
+          <svg class="lnt-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lnt-body"><p class="lnt-body-inner">Usamos senderos establecidos y zonas de acampado designadas. Los ecosistemas frágiles de ribera y tepuy requieren pisadas conscientes.</p></div>
+      </div>
+      <div class="lnt-ai">
+        <button class="lnt-trigger" aria-expanded="false">
+          <div class="lnt-trigger-left">
+            <span class="lnt-num-b">03</span>
+            <span class="lnt-trigger-title">Maneja bien los desechos</span>
+          </div>
+          <svg class="lnt-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lnt-body"><p class="lnt-body-inner">Lo que traes, te llevas. Residuos orgánicos e inorgánicos son gestionados según protocolos comunitarios. Cero basura en el río.</p></div>
+      </div>
+      <div class="lnt-ai">
+        <button class="lnt-trigger" aria-expanded="false">
+          <div class="lnt-trigger-left">
+            <span class="lnt-num-b">04</span>
+            <span class="lnt-trigger-title">Deja lo que encuentres</span>
+          </div>
+          <svg class="lnt-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lnt-body"><p class="lnt-body-inner">Piedras, plantas, plumas y conchas son parte del ecosistema. Su belleza es mayor donde están que en cualquier estante.</p></div>
+      </div>
+      <div class="lnt-ai">
+        <button class="lnt-trigger" aria-expanded="false">
+          <div class="lnt-trigger-left">
+            <span class="lnt-num-b">05</span>
+            <span class="lnt-trigger-title">Minimiza el impacto del fuego</span>
+          </div>
+          <svg class="lnt-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lnt-body"><p class="lnt-body-inner">Usamos fuego únicamente en los fogones comunitarios. En entornos húmedos tropicales, una fogata mal gestionada puede tener consecuencias irreversibles.</p></div>
+      </div>
+      <div class="lnt-ai">
+        <button class="lnt-trigger" aria-expanded="false">
+          <div class="lnt-trigger-left">
+            <span class="lnt-num-b">06</span>
+            <span class="lnt-trigger-title">Respeta la fauna silvestre</span>
+          </div>
+          <svg class="lnt-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lnt-body"><p class="lnt-body-inner">Observar sin interferir. Los delfines, loros, monos y reptiles son protagonistas del territorio — los humanos somos visitas.</p></div>
+      </div>
+      <div class="lnt-ai">
+        <button class="lnt-trigger" aria-expanded="false">
+          <div class="lnt-trigger-left">
+            <span class="lnt-num-b">07</span>
+            <span class="lnt-trigger-title">Sé considerado con otros</span>
+          </div>
+          <svg class="lnt-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lnt-body"><p class="lnt-body-inner">Ruidos, velocidad y actitudes importan tanto en el río como en la comunidad. La experiencia de cada persona merece respeto.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INCLUDED / NOT INCLUDED -->
+  <section class="included">
+    <div class="incl-head">
+      <p class="s-label rev">El Paquete</p>
+      <h2 class="incl-title rev d1">Lo que incluye tu experiencia</h2>
+    </div>
+    <div class="incl-tabs rev d2">
+      <button class="i-tab active" data-tab="si">
+        <svg width="14" height="14" viewBox="0 0 18 18" fill="none" style="display:inline;margin-right:4px;vertical-align:middle" aria-hidden="true">
+          <circle cx="9" cy="9" r="8" stroke="var(--jungle-mid)" stroke-width="1.5"/>
+          <path d="M5 9l3 3 5-6" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Incluido
+      </button>
+      <button class="i-tab" data-tab="no">
+        <svg width="14" height="14" viewBox="0 0 18 18" fill="none" style="display:inline;margin-right:4px;vertical-align:middle" aria-hidden="true">
+          <circle cx="9" cy="9" r="8" stroke="var(--earth-terra)" stroke-width="1.5"/>
+          <path d="M6 6l6 6M12 6l-6 6" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        No incluido
+      </button>
+    </div>
+    <div id="tab-si" class="incl-panel active">
+      <ul class="incl-list">
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Guía indígena Puinave certificado</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alojamiento comunitario (3 noches)</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Alimentación completa (4 días)</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Transporte fluvial en lancha rápida</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Kayak, paletas y chaleco salvavidas</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Taller de artesanía y cultura Puinave</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Ascenso guiado al Cerro Mavicure</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Fogata y cuentos ancestrales</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9l4 4 6-7" stroke="var(--jungle-mid)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Seguro básico de actividades de aventura</li>
+      </ul>
+    </div>
+    <div id="tab-no" class="incl-panel">
+      <ul class="incl-list">
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/></svg>Tiquetes aéreos a Inírida</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/></svg>Bebidas alcohólicas y gaseosas</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/></svg>Gastos personales</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/></svg>Seguro médico internacional</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/></svg>Propinas (opcionales)</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/></svg>Drones y equipos especializados</li>
+        <li><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="var(--earth-terra)" stroke-width="1.5" stroke-linecap="round"/></svg>Medicamentos específicos</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PACKING LIST -->
+  <section class="packing">
+    <div class="pack-head">
+      <p class="s-label rev">Preparación</p>
+      <h2 class="pack-title rev d1">Lleva lo <em>justo</em>, vive lo esencial</h2>
+      <p class="pack-intro rev d2">La selva enseña a prescindir de lo superfluo. Esta es la lista básica para una experiencia cómoda y responsable.</p>
+    </div>
+    <div class="pack-acc" id="packAcc">
+      <div class="pack-ai">
+        <button class="pack-trigger"><span class="pack-trigger-title">Ropa y Calzado</span><svg class="pack-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="pack-body"><div class="pack-items">
+          <span class="pack-item"><span class="p-dot"></span>Ropa manga larga</span>
+          <span class="pack-item"><span class="p-dot"></span>Pantalones ligeros</span>
+          <span class="pack-item"><span class="p-dot"></span>Botas de agua</span>
+          <span class="pack-item"><span class="p-dot"></span>Sandalias de río</span>
+          <span class="pack-item"><span class="p-dot"></span>Ropa secado rápido</span>
+          <span class="pack-item"><span class="p-dot"></span>Sombrero ala ancha</span>
+        </div></div>
+      </div>
+      <div class="pack-ai">
+        <button class="pack-trigger"><span class="pack-trigger-title">Cuidado Personal</span><svg class="pack-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="pack-body"><div class="pack-items">
+          <span class="pack-item"><span class="p-dot"></span>Protector solar biodeg.</span>
+          <span class="pack-item"><span class="p-dot"></span>Repelente de insectos</span>
+          <span class="pack-item"><span class="p-dot"></span>Botiquín personal</span>
+          <span class="pack-item"><span class="p-dot"></span>Pastillas potabilizadoras</span>
+          <span class="pack-item"><span class="p-dot"></span>Toallitas húmedas</span>
+          <span class="pack-item"><span class="p-dot"></span>Antihistamínico oral</span>
+        </div></div>
+      </div>
+      <div class="pack-ai">
+        <button class="pack-trigger"><span class="pack-trigger-title">Equipamiento</span><svg class="pack-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="pack-body"><div class="pack-items">
+          <span class="pack-item"><span class="p-dot"></span>Linterna de cabeza</span>
+          <span class="pack-item"><span class="p-dot"></span>Bolsa hermética</span>
+          <span class="pack-item"><span class="p-dot"></span>Batería externa</span>
+          <span class="pack-item"><span class="p-dot"></span>Binoculares (opcional)</span>
+          <span class="pack-item"><span class="p-dot"></span>Cuaderno de notas</span>
+          <span class="pack-item"><span class="p-dot"></span>Bolsas para basura</span>
+        </div></div>
+      </div>
+      <div class="pack-ai">
+        <button class="pack-trigger"><span class="pack-trigger-title">Documentos</span><svg class="pack-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="pack-body"><div class="pack-items">
+          <span class="pack-item"><span class="p-dot"></span>Cédula o pasaporte</span>
+          <span class="pack-item"><span class="p-dot"></span>Cartilla de vacunación</span>
+          <span class="pack-item"><span class="p-dot"></span>Efectivo en pesos</span>
+          <span class="pack-item"><span class="p-dot"></span>Confirmación de reserva</span>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <img src="Logo.png" alt="Nativos Guainía" class="footer-logo">
+    <p class="footer-tagline">¡Allá donde la selva habla, el río guía y el alma escucha!</p>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/nativosguainia" target="_blank" rel="noopener noreferrer" class="f-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        @nativosguainia
+      </a>
+      <a href="https://wa.me/573143499532" target="_blank" rel="noopener noreferrer" class="f-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.522 3.66 1.435 5.18L2 22l4.913-1.41A9.94 9.94 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm.01 1.8a8.19 8.19 0 11-.02 16.38 8.19 8.19 0 01.02-16.38zm-2.47 3.78c-.21 0-.43.02-.64.03-.22.01-.59.08-.9.44-.32.37-1.21 1.18-1.21 2.88s1.24 3.35 1.42 3.58c.17.23 2.38 3.84 5.88 5.22 2.92 1.15 3.51.92 4.14.86.63-.06 2.04-.83 2.33-1.64.28-.8.28-1.49.2-1.64-.08-.14-.3-.22-.63-.39-.33-.17-1.95-.96-2.25-1.07-.3-.11-.52-.17-.74.17-.22.33-.85 1.07-1.04 1.29-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.62-.97-.87-1.63-1.94-1.82-2.27-.19-.33-.02-.51.14-.67.14-.14.33-.38.49-.57.17-.19.22-.33.33-.55.11-.22.06-.41-.03-.57-.08-.17-.71-1.76-.98-2.4-.26-.63-.52-.53-.72-.54l-.64-.01z"/></svg>
+        +57 314 3499532
+      </a>
+    </div>
+    <p class="footer-copy">Nativos Guainía · Ecoturismo Comunitario Indígena<br>Guainía, Colombia · &copy; 2025</p>
+  </footer>
+
+</div><!-- /page-home -->
+
+
+<!-- ════════════════════════════════════
+     PAGE: ITINERARY
+════════════════════════════════════ -->
+<div id="page-itinerary" class="page">
+  <section class="itin-hero">
+    <div class="itin-bg">
+      <img src="Web 3.png" alt="Río Inírida al atardecer, Guainía" loading="lazy">
+    </div>
+    <div class="itin-bg-ov"></div>
+    <div class="itin-hero-body">
+      <p class="itin-hero-kicker">4 Días · 3 Noches</p>
+      <h1 class="itin-hero-title">El Itinerario</h1>
+      <p class="itin-hero-sub">Cerros de Mavicure · Río Inírida · Comunidad Puinave</p>
+    </div>
+  </section>
+  <div class="itin-body">
+    <!-- DÍA 1 -->
+    <article class="day-block rev">
+      <div class="day-meta">
+        <div class="day-big" aria-hidden="true">01</div>
+        <div class="day-info">
+          <p class="day-kicker">Día 1</p>
+          <h2 class="day-title">Bienvenida al Guainía</h2>
+        </div>
+      </div>
+      <div class="day-acts">
+        <div class="day-act"><p class="day-act-time">Mañana</p><h3 class="day-act-title">Llegada al aeropuerto</h3><p class="day-act-desc">Tu guía Puinave te espera. Primera impresión del Guainía: el olor húmedo de la selva y la inmensidad del cielo abierto.</p></div>
+        <div class="day-act"><p class="day-act-time">Mediodía</p><h3 class="day-act-title">Traslado fluvial en lancha</h3><p class="day-act-desc">Navegamos el río Inírida de aguas oscuras como tinta. Las riberas se cierran, la selva crece, y aparecen los primeros tepuyes.</p></div>
+        <div class="day-act"><p class="day-act-time">Tarde</p><h3 class="day-act-title">Llegada a la comunidad</h3><p class="day-act-desc">Almuerzo con pescado del río, casabe de yuca y frutas silvestres. Orientación sobre convivencia y Leave No Trace.</p></div>
+        <div class="day-act"><p class="day-act-time">Atardecer</p><h3 class="day-act-title">Avistamiento de delfines rosados</h3><p class="day-act-desc">Cuando el río cambia de color, los toninas salen a jugar. Observación desde la orilla o en kayak.</p></div>
+      </div>
+      <div class="day-note"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 2l1.5 4.5H15l-3.75 2.7 1.5 4.5L9 11l-3.75 2.7 1.5-4.5L3 6.5h4.5L9 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><p class="day-note-text"><strong>Noche:</strong> Cena a la luz de las velas con historias de los ancianos sobre el origen del río Inírida.</p></div>
+    </article>
+    <!-- DÍA 2 -->
+    <article class="day-block rev">
+      <div class="day-meta">
+        <div class="day-big" aria-hidden="true">02</div>
+        <div class="day-info">
+          <p class="day-kicker">Día 2</p>
+          <h2 class="day-title">Ascenso y Cultura Ancestral</h2>
+        </div>
+      </div>
+      <div class="day-acts">
+        <div class="day-act"><p class="day-act-time">Madrugada</p><h3 class="day-act-title">Amanecer en la selva</h3><p class="day-act-desc">A las 5:00 a.m. la selva ya está despierta. Desayuno con café de monte, frutas amazónicas y proteína de río.</p></div>
+        <div class="day-act"><p class="day-act-time">Mañana</p><h3 class="day-act-title">Ascenso al Cerro Mavicure</h3><p class="day-act-desc">~2 horas de subida. El guía señala plantas medicinales, explica sus nombres en Puinave. En la cima: la Amazonia a tus pies.</p></div>
+        <div class="day-act"><p class="day-act-time">Tarde</p><h3 class="day-act-title">Taller de Cultura Puinave</h3><p class="day-act-desc">Cestería en palma moriche, collares con semillas del bosque y pinturas corporales con jagua y achiote.</p></div>
+        <div class="day-act"><p class="day-act-time">Tarde-noche</p><h3 class="day-act-title">Medicina tradicional con el chamán</h3><p class="day-act-desc">Caminata por el jardín botánico. El sabedor explica más de 40 plantas amazónicas para sanación y alimentación.</p></div>
+      </div>
+      <div class="day-note"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 2l1.5 4.5H15l-3.75 2.7 1.5 4.5L9 11l-3.75 2.7 1.5-4.5L3 6.5h4.5L9 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><p class="day-note-text"><strong>Nota:</strong> El ascenso es de dificultad moderada. Lleva calzado antideslizante y 1.5L de agua mínimo.</p></div>
+    </article>
+    <!-- DÍA 3 -->
+    <article class="day-block rev">
+      <div class="day-meta">
+        <div class="day-big" aria-hidden="true">03</div>
+        <div class="day-info">
+          <p class="day-kicker">Día 3</p>
+          <h2 class="day-title">Comunidad y Fogata</h2>
+        </div>
+      </div>
+      <div class="day-acts">
+        <div class="day-act"><p class="day-act-time">Mañana</p><h3 class="day-act-title">Pesca tradicional</h3><p class="day-act-desc">Aprendemos las técnicas Puinave: la atarraya, la nasa y el curiare. Payara, palometa, tucunaré.</p></div>
+        <div class="day-act"><p class="day-act-time">Mediodía</p><h3 class="day-act-title">Cocina comunitaria</h3><p class="day-act-desc">Cocinamos con las mujeres de la comunidad. Hervido de río, tacacho amazónico y casabe recién elaborado.</p></div>
+        <div class="day-act"><p class="day-act-time">Tarde</p><h3 class="day-act-title">Kayak por el caño Bocachico</h3><p class="day-act-desc">Aguas tranquilas entre palmas de cumare centenarias. Nidos de garzas, iguanas y nutrias gigantes.</p></div>
+        <div class="day-act"><p class="day-act-time">Noche</p><h3 class="day-act-title">La gran fogata</h3><p class="day-act-desc">El momento más esperado. El mayor de la comunidad comparte relatos sobre el origen del mundo y los espíritus del bosque.</p></div>
+      </div>
+      <div class="day-note"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 2l1.5 4.5H15l-3.75 2.7 1.5 4.5L9 11l-3.75 2.7 1.5-4.5L3 6.5h4.5L9 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><p class="day-note-text"><strong>Esta noche</strong> el cielo muestra la Vía Láctea completa. Llevamos telescopio y el guía explica la astronomía Puinave.</p></div>
+    </article>
+    <!-- DÍA 4 -->
+    <article class="day-block rev">
+      <div class="day-meta">
+        <div class="day-big" aria-hidden="true">04</div>
+        <div class="day-info">
+          <p class="day-kicker">Día 4</p>
+          <h2 class="day-title">City Tour y Regreso</h2>
+        </div>
+      </div>
+      <div class="day-acts">
+        <div class="day-act"><p class="day-act-time">Mañana</p><h3 class="day-act-title">Despedida de la comunidad</h3><p class="day-act-desc">Último desayuno junto al río. Ceremonia de despedida tradicional. Partimos en lancha hacia Inírida.</p></div>
+        <div class="day-act"><p class="day-act-time">Mediodía</p><h3 class="day-act-title">City Tour por Inírida</h3><p class="day-act-desc">El malecón sobre el río, el mercado artesanal y el Jardín Botánico del Banco de la República.</p></div>
+        <div class="day-act"><p class="day-act-time">Tarde</p><h3 class="day-act-title">Almuerzo típico y compras</h3><p class="day-act-desc">Cocina guainiana en su versión urbana. Artesanías, aceites vegetales amazónicos y manillas de recuerdo.</p></div>
+        <div class="day-act"><p class="day-act-time">Tarde/Noche</p><h3 class="day-act-title">Vuelo de regreso</h3><p class="day-act-desc">El guía te acompaña hasta el check-in. Desde la ventana del avión, los cerros se despiden — ya sabes que volverás.</p></div>
+      </div>
+      <div class="day-note"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 2l1.5 4.5H15l-3.75 2.7 1.5 4.5L9 11l-3.75 2.7 1.5-4.5L3 6.5h4.5L9 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><p class="day-note-text"><strong>Recuerda:</strong> Confirma tu vuelo de regreso con anticipación. Satena opera vuelos a Bogotá con cupos limitados.</p></div>
+    </article>
+  </div>
+  <div class="itin-cta">
+    <p class="itin-cta-text">¿Listo para vivir esta experiencia?</p>
+    <button class="btn-cta" style="animation:none;opacity:1;max-width:320px;margin:0 auto;" onclick="goPage('reservas')">
+      <span>Reservar ahora</span>
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+  <footer class="footer">
+    <img src="Logo.png" alt="Nativos Guainía" class="footer-logo">
+    <p class="footer-copy">Nativos Guainía · Guainía, Colombia · &copy; 2025</p>
+  </footer>
+</div><!-- /page-itinerary -->
+
+
+<!-- ════════════════════════════════════
+     PAGE: RESERVAS
+════════════════════════════════════ -->
+<div id="page-reservas" class="page">
+  <section class="res-hero">
+    <div style="width:100%">
+      <p class="res-hero-kicker">Tu próxima aventura comienza aquí</p>
+      <h1 class="res-hero-title">Reserva tu experiencia</h1>
+    </div>
+  </section>
+  <div class="res-body">
+    <div class="price-card rev">
+      <p class="price-label">Precio por persona</p>
+      <p class="price-main"><span class="price-curr">$</span>1.250.000</p>
+      <p class="price-sub">COP · 4 días / 3 noches todo incluido</p>
+      <div class="price-rows">
+        <div class="p-row"><span>Para reservar (40%)</span><strong>$500.000 COP</strong></div>
+        <div class="p-row"><span>Antes de llegar (60%)</span><strong>$750.000 COP</strong></div>
+      </div>
+    </div>
+
+    <p class="contact-head rev">Contáctanos directamente</p>
+    <a href="https://wa.me/573143499532?text=Hola%2C%20quiero%20reservar%20la%20experiencia%20en%20los%20Cerros%20de%20Mavicure%20con%20Nativos%20Guain%C3%ADa."
+       class="btn-wa-full rev d1" target="_blank" rel="noopener noreferrer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.522 3.66 1.435 5.18L2 22l4.913-1.41A9.94 9.94 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm.01 1.8a8.19 8.19 0 11-.02 16.38 8.19 8.19 0 01.02-16.38zm-2.47 3.78c-.21 0-.43.02-.64.03-.22.01-.59.08-.9.44-.32.37-1.21 1.18-1.21 2.88s1.24 3.35 1.42 3.58c.17.23 2.38 3.84 5.88 5.22 2.92 1.15 3.51.92 4.14.86.63-.06 2.04-.83 2.33-1.64.28-.8.28-1.49.2-1.64-.08-.14-.3-.22-.63-.39-.33-.17-1.95-.96-2.25-1.07-.3-.11-.52-.17-.74.17-.22.33-.85 1.07-1.04 1.29-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.62-.97-.87-1.63-1.94-1.82-2.27-.19-.33-.02-.51.14-.67.14-.14.33-.38.49-.57.17-.19.22-.33.33-.55.11-.22.06-.41-.03-.57-.08-.17-.71-1.76-.98-2.4-.26-.63-.52-.53-.72-.54l-.64-.01z"/></svg>
+      Reservar ahora por WhatsApp
+    </a>
+    <a href="tel:+573143499532" class="btn-tel rev d2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.8 11.6 19.79 19.79 0 01.74 3a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l.91-.9a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      +57 314 3499532
+    </a>
+    <div class="res-note rev d3">
+      El pago del 40% confirma tu cupo. El 60% restante se cancela máximo 5 días antes de la llegada. Aceptamos transferencias, Nequi y efectivo.
+    </div>
+
+    <h2 class="form-head rev">Envíanos tu consulta</h2>
+    <p class="form-sub rev d1">Completa el formulario y te respondemos por WhatsApp en menos de 24 horas.</p>
+    <form class="res-form rev d2" id="resForm" novalidate>
+      <div class="fg" id="fg-name">
+        <label for="m-name">Nombre completo</label>
+        <input type="text" id="m-name" name="name" placeholder="Tu nombre" autocomplete="name">
+        <span class="fg-err">Por favor ingresa tu nombre.</span>
+      </div>
+      <div class="fg" id="fg-email">
+        <label for="m-email">Correo electrónico</label>
+        <input type="email" id="m-email" name="email" placeholder="tu@correo.com" autocomplete="email">
+        <span class="fg-err">Ingresa un correo válido.</span>
+      </div>
+      <div class="fg" id="fg-people">
+        <label for="m-people">Número de personas</label>
+        <select id="m-people" name="people">
+          <option value="">Selecciona</option>
+          <option>1 persona</option>
+          <option>2 personas</option>
+          <option>3 personas</option>
+          <option>4 personas</option>
+          <option>5 personas</option>
+          <option>6 o más personas</option>
+        </select>
+        <span class="fg-err">Selecciona el número de personas.</span>
+      </div>
+      <div class="fg" id="fg-date">
+        <label for="m-date">Fecha de llegada preferida</label>
+        <input type="date" id="m-date" name="date">
+        <span class="fg-err">Selecciona una fecha.</span>
+      </div>
+      <div class="fg">
+        <label for="m-msg">Mensaje (opcional)</label>
+        <textarea id="m-msg" name="message" placeholder="Necesidades especiales, preguntas..."></textarea>
+      </div>
+      <button type="submit" class="btn-send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.522 3.66 1.435 5.18L2 22l4.913-1.41A9.94 9.94 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm.01 1.8a8.19 8.19 0 11-.02 16.38 8.19 8.19 0 01.02-16.38zm-2.47 3.78c-.21 0-.43.02-.64.03-.22.01-.59.08-.9.44-.32.37-1.21 1.18-1.21 2.88s1.24 3.35 1.42 3.58c.17.23 2.38 3.84 5.88 5.22 2.92 1.15 3.51.92 4.14.86.63-.06 2.04-.83 2.33-1.64.28-.8.28-1.49.2-1.64-.08-.14-.3-.22-.63-.39-.33-.17-1.95-.96-2.25-1.07-.3-.11-.52-.17-.74.17-.22.33-.85 1.07-1.04 1.29-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.62-.97-.87-1.63-1.94-1.82-2.27-.19-.33-.02-.51.14-.67.14-.14.33-.38.49-.57.17-.19.22-.33.33-.55.11-.22.06-.41-.03-.57-.08-.17-.71-1.76-.98-2.4-.26-.63-.52-.53-.72-.54l-.64-.01z"/></svg>
+        Enviar por WhatsApp
+      </button>
+      <p class="form-note">Serás redirigido a WhatsApp con tu consulta prellenada.</p>
+    </form>
+  </div>
+  <footer class="footer">
+    <img src="Logo.png" alt="Nativos Guainía" class="footer-logo">
+    <div class="footer-links">
+      <a href="https://www.instagram.com/nativosguainia" target="_blank" rel="noopener noreferrer" class="f-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        @nativosguainia
+      </a>
+    </div>
+    <p class="footer-copy">Nativos Guainía · Guainía, Colombia · &copy; 2025</p>
+  </footer>
+</div><!-- /page-reservas -->
+
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="bottom-nav" aria-label="Navegación principal">
+  <button class="bn-tab active" data-page="home" onclick="goPage('home')" aria-label="Inicio">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 10.5L12 3l9 7.5V21a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M9 22V12h6v10" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    Inicio
+  </button>
+  <button class="bn-tab" data-page="itinerary" onclick="goPage('itinerary')" aria-label="Itinerario">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M8 14h4M8 18h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    Itinerario
+  </button>
+  <button class="bn-tab" data-page="reservas" onclick="goPage('reservas')" aria-label="Reservas">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    Reservas
+  </button>
+</nav>
+
+
+<script>
+'use strict';
+
+// ── PAGE ROUTING ────────────────────────────────────────
+function goPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + name);
+  if (target) { target.classList.add('active'); window.scrollTo({ top: 0, behavior: 'instant' }); }
+  document.querySelectorAll('.bn-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.page === name);
+  });
+  history.pushState({ page: name }, '', '#' + name);
+  observe();
+}
+
+window.addEventListener('popstate', e => goPage((e.state && e.state.page) || 'home'));
+
+(function() {
+  const h = window.location.hash.replace('#', '');
+  if (h === 'itinerary' || h === 'reservas') goPage(h);
+  else goPage('home');
+})();
+
+// ── HEADER SCROLL ───────────────────────────────────────
+const header = document.getElementById('header');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+// ── SCROLL REVEAL ───────────────────────────────────────
+function observe() {
+  const els = document.querySelectorAll('.rev:not(.on)');
+  if (!els.length) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+  els.forEach(el => io.observe(el));
+}
+document.addEventListener('DOMContentLoaded', observe);
+observe();
+
+// ── HAMBURGER / NAV OVERLAY ─────────────────────────────
+const hamburger  = document.getElementById('hamburger');
+const navOverlay = document.getElementById('navOverlay');
+const navClose   = document.getElementById('navClose');
+
+function openNav() {
+  hamburger.classList.add('open');
+  navOverlay.classList.add('open');
+  hamburger.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
+}
+function closeNav() {
+  hamburger.classList.remove('open');
+  navOverlay.classList.remove('open');
+  hamburger.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+}
+hamburger.addEventListener('click', () => navOverlay.classList.contains('open') ? closeNav() : openNav());
+navClose.addEventListener('click', closeNav);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNav(); });
+
+// ── GALLERY DOTS ────────────────────────────────────────
+const reel = document.getElementById('galleryReel');
+const dots = document.querySelectorAll('.g-dot');
+if (reel && dots.length) {
+  reel.addEventListener('scroll', () => {
+    const idx = Math.round(reel.scrollLeft / (reel.scrollWidth / 3));
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }, { passive: true });
+}
+
+// ── LNT ACCORDION ───────────────────────────────────────
+document.querySelectorAll('.lnt-ai').forEach(item => {
+  const trigger = item.querySelector('.lnt-trigger');
+  trigger.addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.lnt-ai.open').forEach(o => {
+      o.classList.remove('open');
+      o.querySelector('.lnt-trigger').setAttribute('aria-expanded', 'false');
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+  });
+});
+
+// ── PACKING ACCORDION ───────────────────────────────────
+document.querySelectorAll('.pack-ai').forEach(item => {
+  const trigger = item.querySelector('.pack-trigger');
+  trigger.addEventListener('click', () => {
+    item.classList.toggle('open');
+  });
+});
+
+// ── INCLUDED TABS ───────────────────────────────────────
+document.querySelectorAll('.i-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.i-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.incl-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const panel = document.getElementById('tab-' + tab.dataset.tab);
+    if (panel) panel.classList.add('active');
+  });
+});
+
+// ── RESERVATION FORM ────────────────────────────────────
+const form = document.getElementById('resForm');
+if (form) {
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    let ok = true;
+    const name   = document.getElementById('m-name');
+    const email  = document.getElementById('m-email');
+    const people = document.getElementById('m-people');
+    const date   = document.getElementById('m-date');
+    const msg    = document.getElementById('m-msg');
+
+    ['name','email','people','date'].forEach(id => {
+      document.getElementById('fg-' + id).classList.remove('err');
+    });
+
+    if (!name.value.trim()) { document.getElementById('fg-name').classList.add('err'); ok = false; }
+    if (!email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+      document.getElementById('fg-email').classList.add('err'); ok = false;
+    }
+    if (!people.value) { document.getElementById('fg-people').classList.add('err'); ok = false; }
+    if (!date.value)   { document.getElementById('fg-date').classList.add('err'); ok = false; }
+
+    if (!ok) return;
+
+    const dateStr = new Date(date.value + 'T12:00:00').toLocaleDateString('es-CO', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+    const lines = [
+      'Hola Nativos Guainía! Quisiera reservar la experiencia en los Cerros de Mavicure.',
+      '',
+      'Nombre: ' + name.value.trim(),
+      'Email: ' + email.value.trim(),
+      'Personas: ' + people.value,
+      'Fecha de llegada: ' + dateStr,
+    ];
+    if (msg.value.trim()) lines.push('Mensaje: ' + msg.value.trim());
+    lines.push('', 'Quedo atento/a a su confirmación. Muchas gracias!');
+    window.open('https://wa.me/573143499532?text=' + encodeURIComponent(lines.join('\n')), '_blank', 'noopener,noreferrer');
+  });
+}
+</script>
+</body>
+</html>
